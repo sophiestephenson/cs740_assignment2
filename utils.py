@@ -14,30 +14,9 @@
 # ---------------------------------------------------------------------------
 
 
-from typing import Any, List
-
-from classes import Flow
-
-
-def create_flows(src: int, dsts: List[int]) -> List[Flow]:
-    """Create a list of flows out of a source node.
-
-    Args:
-        src: The source node for the flows
-        dst: The list of destination nodes for the flows
-
-    Returns:
-        A list of flows with equal demands summing to zero
-
-    """
-    flows = []
-    proportion = 1 / len(dsts)
-
-    for d in dsts:
-        f = Flow(src, d, proportion)
-        flows.append(f)
-
-    return flows
+import random
+from math import factorial
+from typing import Any, List, Tuple
 
 
 def print_matrix(M: List[List[Any]]) -> None:
@@ -50,9 +29,28 @@ def print_matrix(M: List[List[Any]]) -> None:
         M: the matrix to print
     """
     print()
-    print(
-        "\n".join(
-            ["".join(["{:7}".format(round(item, 3)) for item in row]) for row in M]
-        )
-    )
+    print("\n".join(["".join(["{:10}".format(item) for item in row]) for row in M]))
     print()
+
+
+def create_random_flows(n_hosts: int, density: float) -> List[Tuple[int]]:
+    """Create a bunch of random flows given a number of hosts.
+
+    Args:
+        n_hosts: the number of hosts in the network
+        density: the percent of total possible flows to instantiate
+    """
+    flows = []
+    max_flows = factorial(n_hosts) / (factorial(n_hosts - 2))
+
+    for i in range(int(max_flows * density)):
+        src = random.randint(0, n_hosts - 1)
+        dst = random.randint(0, n_hosts - 1)
+
+        # no flows from src to same dst
+        while dst == src:
+            dst = random.randint(0, n_hosts - 1)
+
+        flows.append((src, dst))
+
+    return sorted(flows)

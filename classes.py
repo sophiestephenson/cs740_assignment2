@@ -13,7 +13,9 @@
 # ---------------------------------------------------------------------------
 
 
-from ast import List
+from typing import List, Tuple
+
+from utils import print_matrix
 
 
 class DemandMatrixEntry:
@@ -29,11 +31,11 @@ class DemandMatrixEntry:
 
     """
 
-    def __init__(self, num_flows: int):
+    def __init__(self, num_flows: int = 0):
         """Initialize a DemandMatrixEntry object.
 
         Args:
-            num_flows (int) : the number of flows in this entry
+            num_flows: the number of flows in this entry
         """
 
         self.num_flows = num_flows
@@ -56,45 +58,54 @@ class DemandMatrix:
     are rate limited.
 
     Attributes:
-        num_hosts (int) : the number of hosts in the network
+        n_hosts (int) : the number of hosts in the network
         matrix (List[List[List[Any]]]): An NxN matrix where each entry in
         the matrix is a list of four values:
             [ num flows (int), demand (float), converged (bool), rate limited (bool)]
 
     """
 
-    def __init__(self, flows: List[List[int]]):
+    def __init__(self, n_hosts: int, flows: List[Tuple[int]]):
         """Initialize a DemandMatrix object matching a layout of active flows.
 
         Args:
-            flows (List[List[int]]): an NxN matrix where each entry Mij
+            n_hosts: the number of hosts in the network
+            flows: an NxN matrix where each entry Mij
                 is the number of flows from host i to host j.
         """
 
-        num_hosts = len(flows)
-        self.n_hosts = num_hosts
+        self.n_hosts = n_hosts
         self.matrix = []
 
-        for i in range(num_hosts):
+        for i in range(n_hosts):
             self.matrix.append([])
-            for j in range(num_hosts):
-                entry = DemandMatrixEntry(flows[i][j])
-                self.matrix[i].append(entry)
+            for j in range(n_hosts):
+                self.matrix[i].append(DemandMatrixEntry())
 
-    def n_hosts(self) -> int:
-        """Get the number of hosts in the network.
+        for f in flows:
+            src, dst = f
+            self.matrix[src][dst].num_flows += 1
 
-        Returns:
-            the number of hosts
-        """
-        return self.n_hosts
+    def display(self) -> None:
+        """Display the current demand matrix as a matrix of demand values"""
+
+        demands = []
+        for i in range(self.n_hosts):
+            demands.append([])
+            for j in range(self.n_hosts):
+                entry = str(self.n_flows(i, j)) + "|"
+                entry += str(round(self.demand(i, j), 3))
+                if self.converged(i, j):
+                    entry += "*"
+                demands[i].append(entry)
+        print_matrix(demands)
 
     def n_flows(self, src: int, dst: int) -> int:
         """Get the number of flows from this src to this dst.
 
         Args:
-            src (int): the source host
-            dst (int): the destination host
+            src: the source host
+            dst: the destination host
 
         Returns:
             the number of flows
@@ -105,8 +116,8 @@ class DemandMatrix:
         """Get the demand per flow from this src to this dst.
 
         Args:
-            src (int): the source host
-            dst (int): the destination host
+            src: the source host
+            dst: the destination host
 
         Returns:
             the demand
@@ -117,9 +128,9 @@ class DemandMatrix:
         """Set the number of flows from this src to this dst.
 
         Args:
-            src (int)       : the source host
-            dst (int)       : the destination host
-            demand (float)  : the new demand per flow
+            src     : the source host
+            dst     : the destination host
+            demand  : the new demand per flow
         """
         self.matrix[src][dst].demand = demand
 
@@ -127,8 +138,8 @@ class DemandMatrix:
         """Get the convergence status of the demand from this src to this dst.
 
         Args:
-            src (int): the source host
-            dst (int): the destination host
+            src: the source host
+            dst: the destination host
 
         Returns:
             whether the flow demand has converged
@@ -140,8 +151,8 @@ class DemandMatrix:
         """Mark demand from this src to this dst as converged.
 
         Args:
-            src (int): the source host
-            dst (int): the destination host
+            src: the source host
+            dst: the destination host
         """
         self.matrix[src][dst].converged = True
 
@@ -149,8 +160,8 @@ class DemandMatrix:
         """Get the receiver-limited status of the flows from this src to this dst.
 
         Args:
-            src (int): the source host
-            dst (int): the destination host
+            src: the source host
+            dst: the destination host
 
         Returns:
             whether the flows are receiver limited
@@ -161,8 +172,8 @@ class DemandMatrix:
         """Set the rate limited flag to True for flows from this src to this dst.
 
         Args:
-            src (int): the source host
-            dst (int): the destination host
+            src: the source host
+            dst: the destination host
         """
         self.matrix[src][dst].rl = True
 
@@ -170,16 +181,16 @@ class DemandMatrix:
         """Set the rate limited flag to False for flows from this src to this dst.
 
         Args:
-            src (int): the source host
-            dst (int): the destination host
+            src: the source host
+            dst: the destination host
         """
         self.matrix[src][dst].rl = False
 
     def __eq__(self, other) -> bool:
         """Overrides the default implementation"""
         if isinstance(other, DemandMatrix):
-            for i in self.n_hosts:
-                for j in self.n_hosts:
+            for i in range(self.n_hosts):
+                for j in range(self.n_hosts):
                     if self.demand(i, j) != other.demand(i, j):
                         return False
             return True
