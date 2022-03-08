@@ -1,2 +1,7 @@
 **/__pycache__
 __pycache__/*
+classes.py
+**/dist
+**/build
+*.egg-info
+*.pyo
