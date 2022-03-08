@@ -250,15 +250,15 @@ class FatTreeTopo(StructuredTopo):
                 self.dpid = dpid
             elif name:
                 pod, sw, host = [int(s) for s in name.split('_')]
-                self.pod = pod
-                self.sw = sw
+                self.pod = int(pod)
+                self.sw = int(sw)
                 self.host = host
-                self.dpid = (pod << 16) + (sw << 8) + host
+                self.dpid = (int(pod) << 16) + (int(sw) << 8) + host
             else:
-                self.pod = pod
-                self.sw = sw
+                self.pod = int(pod)
+                self.sw = int(sw)
                 self.host = host
-                self.dpid = (pod << 16) + (sw << 8) + host
+                self.dpid = (int(pod) << 16) + (int(sw) << 8) + host
 
         def __str__(self):
             return "(%i, %i, %i)" % (self.pod, self.sw, self.host)
@@ -323,13 +323,13 @@ class FatTreeTopo(StructuredTopo):
         self.k = k
         self.id_gen = FatTreeTopo.FatTreeNodeID
         self.numPods = k
-        self.aggPerPod = k / 2
+        self.aggPerPod = int(k / 2)
 
         pods = range(0, k)
-        core_sws = range(1, k / 2 + 1)
-        agg_sws = range(k / 2, k)
-        edge_sws = range(0, k / 2)
-        hosts = range(2, k / 2 + 2)
+        core_sws = range(1, int(k / 2) + 1)
+        agg_sws = range(int(k / 2), k)
+        edge_sws = range(0, int(k / 2))
+        hosts = range(2, int(k / 2) + 2)
 
         for p in pods:
             for e in edge_sws:

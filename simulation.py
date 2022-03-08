@@ -16,6 +16,7 @@ from mininet.net import Mininet
 from mininet.node import RemoteController
 from mininet.topo import Topo
 
+from ripllib.dctopo import FatTreeTopo
 
 def custom_topo():
 
@@ -40,18 +41,21 @@ def custom_topo():
     topo.addLink(s1, l2, bw=80)
     topo.addLink(s2, l2, bw=40)
 
-    cmd = "/bin/sh -c /home/mininet/pox/pox.py controllers.riplpox --topo=ft,3 --routing=hashed --mode=reactive &"
-    riplpox = Popen(cmd.split())
+    fttopo = FatTreeTopo(2)
 
-    sleep(5)
+    # let the controller get set up
+    cmd = "/bin/sh -c /home/mininet/pox/pox.py controllers.riplpox --topo=ft,2 --routing=hashed --mode=reactive &"
+    riplpox = Popen(cmd.split())
+    sleep(2)
 
     net = Mininet(
-        topo=topo,
+        topo=fttopo,
         link=TCLink,
-        controller=RemoteController,
         autoSetMacs=True,
         autoStaticArp=True,
     )
+
+    net.addController(name="riplpox", controller=RemoteController)
 
     # Run network
     info("***Starting network\n")
@@ -62,7 +66,7 @@ def custom_topo():
 
     info("***Shutting down network\n")
     net.stop()
-
+    riplpox.kill()
 
 if __name__ == "__main__":
     setLogLevel("info")
