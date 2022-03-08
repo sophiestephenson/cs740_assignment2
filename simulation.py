@@ -7,12 +7,13 @@ This example shows how to create an empty Mininet object
 
 import os
 from subprocess import Popen
+from time import sleep
 
 from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import info, setLogLevel
 from mininet.net import Mininet
-from mininet.node import Controller
+from mininet.node import RemoteController
 from mininet.topo import Topo
 
 
@@ -39,10 +40,15 @@ def custom_topo():
     topo.addLink(s1, l2, bw=80)
     topo.addLink(s2, l2, bw=40)
 
+    cmd = "/bin/sh -c /home/mininet/pox/pox.py controllers.riplpox --topo=ft,3 --routing=hashed --mode=reactive &"
+    riplpox = Popen(cmd.split())
+
+    sleep(5)
+
     net = Mininet(
         topo=topo,
         link=TCLink,
-        controller=Controller,
+        controller=RemoteController,
         autoSetMacs=True,
         autoStaticArp=True,
     )
