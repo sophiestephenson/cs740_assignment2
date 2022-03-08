@@ -7,13 +7,14 @@ This example shows how to create an empty Mininet object
 
 from mininet.cli import CLI
 from mininet.link import TCLink
-from mininet.log import setLogLevel
+from mininet.log import info, setLogLevel
 from mininet.net import Mininet
 from mininet.topo import Topo
 
 
 def custom_topo():
 
+    info("***Setting up network\n")
     topo = Topo()
     h1 = topo.addHost("h1")
     h2 = topo.addHost("h2")
@@ -32,8 +33,18 @@ def custom_topo():
     net = Mininet(topo=topo, link=TCLink, autoSetMacs=True, autoStaticArp=True)
 
     # Run network
+    info("***Starting network\n")
     net.start()
-    CLI(net)
+
+    info("***Testing bandwidth between h1 and h3\n")
+    h1, h4 = net.getNodeByName("h1", "h3")
+    net.iperf((h1, h3), l4Type="UDP")
+
+    info("***Testing bandwidth between h1 and h4\n")
+    h1, h4 = net.getNodeByName("h1", "h4")
+    net.iperf((h1, h4), l4Type="UDP")
+
+    info("***Shutting down network\n")
     net.stop()
 
 
