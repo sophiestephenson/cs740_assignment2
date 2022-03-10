@@ -13,7 +13,7 @@ from mininet.link import TCLink
 from mininet.log import info, setLogLevel
 from mininet.net import Mininet
 from mininet.node import Controller
-from mininet.topo import Topo
+from mininet.topo import FatTreeTopo, Topo
 
 
 def custom_topo():
@@ -65,6 +65,29 @@ def custom_topo():
     net.stop()
 
 
+def fattree():
+    info("***Setting up network\n")
+    topo = FatTreeTopo(2)
+
+    net = Mininet(
+        topo=topo,
+        link=TCLink,
+        controller=Controller,
+        autoSetMacs=True,
+        autoStaticArp=True,
+    )
+
+    # Run network
+    info("***Starting network\n")
+    net.start()
+
+    net.pingAll()
+
+    info("***Shutting down network\n")
+    net.stop()
+
+
 if __name__ == "__main__":
     setLogLevel("info")
-    custom_topo()
+    # custom_topo()
+    fattree()
