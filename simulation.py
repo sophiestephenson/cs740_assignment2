@@ -12,7 +12,7 @@ from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import info, setLogLevel
 from mininet.net import Mininet
-from mininet.node import RemoteController
+from mininet.node import Controller
 from mininet.topo import Topo
 
 
@@ -39,15 +39,10 @@ def custom_topo():
     topo.addLink(s1, l2, bw=80)
     topo.addLink(s2, l2, bw=40)
 
-    remote_controller = Popen(
-        # "~/pox/pox.py riplpox.riplpox --topo=ft,4 --routing=random --mode=reactive"
-        "~/pox/pox.py riplpox.riplpox --no-cli --routing=hashed --mode=reactive"
-    )
-
     net = Mininet(
         topo=topo,
         link=TCLink,
-        controller=RemoteController,
+        controller=Controller,
         autoSetMacs=True,
         autoStaticArp=True,
     )
@@ -56,7 +51,7 @@ def custom_topo():
     info("***Starting network\n")
     net.start()
 
-    CLI(net)
+    net.pingAll()
 
     # info("***Testing bandwidth between h1 and h3\n")
     # h1, h4 = net.getNodeByName("h1", "h3")
@@ -68,8 +63,6 @@ def custom_topo():
 
     info("***Shutting down network\n")
     net.stop()
-
-    remote_controller.terminate()
 
 
 if __name__ == "__main__":
