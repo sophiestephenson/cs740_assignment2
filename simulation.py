@@ -55,13 +55,15 @@ def custom_topo():
     info("***Starting network\n")
     net.start()
 
-    info("***Testing bandwidth between h1 and h3\n")
-    h1, h4 = net.getNodeByName("h1", "h3")
-    net.iperf((h1, h3), l4Type="UDP")
+    CLI(net)
 
-    info("***Testing bandwidth between h1 and h4\n")
-    h1, h4 = net.getNodeByName("h1", "h4")
-    net.iperf((h1, h4), l4Type="UDP")
+    # info("***Testing bandwidth between h1 and h3\n")
+    # h1, h4 = net.getNodeByName("h1", "h3")
+    # net.iperf((h1, h3), l4Type="UDP")
+
+    # info("***Testing bandwidth between h1 and h4\n")
+    # h1, h4 = net.getNodeByName("h1", "h4")
+    # net.iperf((h1, h4), l4Type="UDP")
 
     info("***Shutting down network\n")
     net.stop()
