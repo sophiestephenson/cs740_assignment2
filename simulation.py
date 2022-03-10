@@ -7,11 +7,11 @@ This example shows how to create an empty Mininet object
 
 import os
 
-from miinet.node import RemoteController
 from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import info, setLogLevel
 from mininet.net import Mininet
+from mininet.node import RemoteController
 from mininet.topo import Topo
 
 
