@@ -12,7 +12,7 @@ from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import info, setLogLevel
 from mininet.net import Mininet
-from mininet.node import Controller
+from mininet.node import Controller, Ryu
 from mininet.topo import Topo
 
 
@@ -42,7 +42,7 @@ def custom_topo():
     net = Mininet(
         topo=topo,
         link=TCLink,
-        controller=Controller,
+        controller=Ryu,
         autoSetMacs=True,
         autoStaticArp=True,
     )
