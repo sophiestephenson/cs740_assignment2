@@ -51,7 +51,8 @@ def custom_topo():
     info("***Starting network\n")
     net.start()
 
-    net.pingAll()
+    # net.pingAll()
+    CLI(net)
 
     info("***Shutting down network\n")
     net.stop()
