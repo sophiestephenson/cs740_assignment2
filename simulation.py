@@ -6,6 +6,7 @@ This example shows how to create an empty Mininet object
 """
 
 import os
+from subprocess import Popen
 
 from mininet.cli import CLI
 from mininet.link import TCLink
@@ -38,9 +39,9 @@ def custom_topo():
     topo.addLink(s1, l2, bw=80)
     topo.addLink(s2, l2, bw=40)
 
-    remote_controller = os.system(
+    remote_controller = Popen(
         # "~/pox/pox.py riplpox.riplpox --topo=ft,4 --routing=random --mode=reactive"
-        "~/pox/pox.py riplpox.riplpox --no-cli --routing=random"
+        "~/pox/pox.py riplpox.riplpox --no-cli --routing=hashed --mode=reactive"
     )
 
     net = Mininet(
