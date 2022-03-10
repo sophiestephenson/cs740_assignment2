@@ -5,6 +5,9 @@ This example shows how to create an empty Mininet object
 (without a topology object) and add nodes to it manually.
 """
 
+import os
+
+from miinet.node import RemoteController
 from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import info, setLogLevel
@@ -18,19 +21,35 @@ def custom_topo():
     topo = Topo()
     h1 = topo.addHost("h1")
     h2 = topo.addHost("h2")
-    h3 = topo.addHost("h3")
-    h4 = topo.addHost("h4")
+    l1 = topo.addSwitch("l1")
     s1 = topo.addSwitch("s1")
     s2 = topo.addSwitch("s2")
-    s3 = topo.addSwitch("s3")
-    topo.addLink(h1, s1)
-    topo.addLink(h2, s1)
-    topo.addLink(h3, s2)
-    topo.addLink(h4, s3)
-    topo.addLink(s1, s2, bw=400)  # , delay='40ms')
-    topo.addLink(s1, s3, bw=600)
+    l2 = topo.addSwitch("l2")
+    h3 = topo.addHost("h3")
+    h4 = topo.addHost("h4")
 
-    net = Mininet(topo=topo, link=TCLink, autoSetMacs=True, autoStaticArp=True)
+    topo.addLink(h1, l1)
+    topo.addLink(h2, l1)
+    topo.addLink(h3, l2)
+    topo.addLink(h4, l2)
+
+    topo.addLink(l1, s1, bw=80)
+    topo.addLink(l1, s2, bw=80)
+    topo.addLink(s1, l2, bw=80)
+    topo.addLink(s2, l2, bw=40)
+
+    remote_controller = os.system(
+        # "~/pox/pox.py riplpox.riplpox --topo=ft,4 --routing=random --mode=reactive"
+        "~/pox/pox.py riplpox.riplpox --no-cli --routing=random"
+    )
+
+    net = Mininet(
+        topo=topo,
+        link=TCLink,
+        controller=RemoteController,
+        autoSetMacs=True,
+        autoStaticArp=True,
+    )
 
     # Run network
     info("***Starting network\n")
@@ -46,6 +65,8 @@ def custom_topo():
 
     info("***Shutting down network\n")
     net.stop()
+
+    remote_controller.terminate()
 
 
 if __name__ == "__main__":
