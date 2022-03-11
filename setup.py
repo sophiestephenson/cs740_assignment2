@@ -6,5 +6,5 @@ setup(
     description="A Hedera simulator for CS740, Assignment 2, Spring 2022",
     author="Sophie Stephenson",
     author_email="srstephenso2@wisc.edu",
-    packages=find_packages,
+    packages=find_packages(),
 )
