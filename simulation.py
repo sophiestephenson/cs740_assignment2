@@ -28,23 +28,33 @@ def custom_topo():
     s1 = topo.addSwitch("s1")
     s2 = topo.addSwitch("s2")
     l2 = topo.addSwitch("l2")
-    h3 = topo.addHost("h3")
-    h4 = topo.addHost("h4")
+    #h3 = topo.addHost("h3")
+    #h4 = topo.addHost("h4")
 
     topo.addLink(h1, l1)
-    topo.addLink(h2, l1)
-    topo.addLink(h3, l2)
-    topo.addLink(h4, l2)
+    topo.addLink(l1, h1)
+    #topo.addLink(h2, l1)
+    topo.addLink(l2, h2)
+    topo.addLink(h2, l2)
+    #topo.addLink(h4, l2)
 
     topo.addLink(l1, s1, bw=80)
+    topo.addLink(s1, l1, bw=80)
     topo.addLink(l1, s2, bw=80)
+    topo.addLink(s2, l1, bw=80)
     topo.addLink(s1, l2, bw=80)
+    topo.addLink(l2, s1, bw=80)
     topo.addLink(s2, l2, bw=40)
+    topo.addLink(l2, s2, bw=40)
 
-    fttopo = FatTreeTopo(2)
+    topo_size = 4
+    routing_alg = "st"
+    mode = "proactive"
+
+    fttopo = FatTreeTopo(topo_size)
 
     # let the controller get set up
-    cmd = "/bin/sh -c /home/mininet/pox/pox.py controllers.riplpox --topo=ft,2 --routing=hashed --mode=reactive &"
+    cmd = "/bin/sh -c /home/mininet/pox/pox.py controllers.riplpox --topo=ft," + str(topo_size) + " --routing=" + routing_alg + " --mode=" + mode + " &"
     riplpox = Popen(cmd.split())
     sleep(2)
 
@@ -61,12 +71,15 @@ def custom_topo():
     info("***Starting network\n")
     net.start()
 
-    # net.pingAll()
+    #net.pingAllFull()
     CLI(net)
 
     info("***Shutting down network\n")
     net.stop()
     riplpox.kill()
+
+    os.system("sudo mn -c")
+    os.system("sudo fuser -k 6633/tcp")
 
 if __name__ == "__main__":
     setLogLevel("info")
