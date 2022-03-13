@@ -6,3 +6,7 @@ Instructions:
 version of) the system yourself! Choose one of the papers either from our reading list or below,
 and create a small program to demonstrate the key idea or part of the system. If you are
 interested in choosing another paper, please discuss with the instructor first.
+
+Used a lot of stuff on here to get it to work: https://mailman.stanford.edu/pipermail/mininet-discuss/2014-June/004663.html 
+
+thank you very much to https://github.com/iwalsh/244proj/blob/master/hedera.py  
