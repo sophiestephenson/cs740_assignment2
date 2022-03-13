@@ -7,9 +7,8 @@
 # ---------------------------------------------------------------------------
 
 import argparse
-from pprint import pprint
 
-from flask import Flask, escape
+from flask import Flask, escape, jsonify
 
 from classes import Node
 
@@ -18,7 +17,28 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    return "the port is " + str(port) + ", and the ID is " + str(node.get_id())
+    return "the port is " + str(node.port) + ", and the ID is " + str(node.get_id())
+
+
+@app.route("/successor")
+def successor():
+    return jsonify(successor=node.successor())
+
+
+@app.route("/predecessor")
+def predecessor():
+    return jsonify(predecessor=node.predecessor)
+
+
+@app.route("/setpredecessor/<predecessor>")
+def set_predecessor(predecessor):
+    node.predecessor = predecessor
+    return "Predecessor set to " + predecessor
+
+
+@app.route("/closestprecedingfinger/<id>")
+def closest_preceding_finger(id):
+    return jsonify(finger=node.closest_preceding_finger(id))
 
 
 @app.route("/<name>")
@@ -33,8 +53,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    port = args.p
 
-    node = Node(port)
+    node = Node(args.p)
 
-    app.run(port=port)
+    app.run(port=args.p)

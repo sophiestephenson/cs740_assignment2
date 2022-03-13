@@ -9,7 +9,15 @@
 
 import hashlib
 
+import requests
+
 from config import FIRST_NODE_PORT, M
+from utils import (
+    get_node_closest_preceding_finger,
+    get_node_predecessor,
+    get_node_successor,
+    set_node_predecessor,
+)
 
 
 class Node:
@@ -32,19 +40,31 @@ class Node:
     def successor(self):
         return self.finger_table.node(0)
 
-    def find_successor(self, k):
-        #
-        # TODO: implement
-        #
-        return
+    def find_successor(self, id):
+        n = self.find_predecessor(id)
+        return get_node_successor(n)
 
-    def find_predecessor(self, k):
-        #
-        # TODO: implement
-        #
-        return
+    def find_predecessor(self, id):
+        curr = self.ip
+        while not (id > curr and id < get_node_successor(curr)):
+            curr = get_node_closest_preceding_finger(curr, id)
+        return curr
+
+    def closest_preceding_finger(self, id):
+        for i in range(M - 1, -1, -1):
+            if self.finger_table.node(i) > self.ip and self.finger_table.node(i) < id:
+                return self.finger_table.node(i)
+        return self.ip
 
     def init_finger_table(self):
+        self.finger_table.set_node(0, get_node_successor(self.finger_table.start(0)))
+        successor_predecessor = get_node_predecessor(self.successor())
+        self.predeccessor = successor_predecessor
+        set_node_predecessor(successor_predecessor, self.ip)
+
+        for i in range(M - 1):
+            print("do more stuff")
+
         #
         # TODO: implement
         #
