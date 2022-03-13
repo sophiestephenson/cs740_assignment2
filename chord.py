@@ -7,21 +7,13 @@
 # ---------------------------------------------------------------------------
 
 import argparse
-import hashlib
+from pprint import pprint
 
 from flask import Flask, escape
 
 from classes import Node
 
 app = Flask(__name__)
-
-
-def find_successor(key):
-    return
-
-
-def find_predecessor(key):
-    return
 
 
 @app.route("/")
@@ -44,4 +36,5 @@ if __name__ == "__main__":
     port = args.p
 
     node = Node(port)
+
     app.run(port=port)
