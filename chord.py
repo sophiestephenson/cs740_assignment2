@@ -21,10 +21,10 @@ def hello():
     return "Welcome to chord! My node ID is " + str(node.id)
 
 
-@app.route("/lookup?id=<id>")
-def lookup(id):
+@app.route("/lookup/<id>")
+def lookup(id: str):
     host_node_ip = node.find_successor(id)
-    return "The data with ID=" + str(id) + " can be found at " + host_node_ip
+    return "The data with ID=" + id + " can be found at " + host_node_ip
 
 
 @app.route("/successor")
@@ -38,24 +38,26 @@ def predecessor():
 
 
 @app.route("/closestprecedingfinger/<id>")
-def closest_preceding_finger(id):
+def closest_preceding_finger(id: str):
     return jsonify(finger=node.closest_preceding_finger(id))
 
 
-@app.route("/findidsuccessor?id=<id>")
-def find_id_successor(id):
+@app.route("/findidsuccessor/<id>")
+def find_id_successor(id: str):
     return jsonify(id_successor=node.find_successor(id))
 
 
-@app.route("/setpredecessor?predecessor=<predecessor>")
-def set_predecessor(predecessor):
+@app.route("/setpredecessor/<predecessor>")
+def set_predecessor(predecessor: str):
     node.predecessor = predecessor
     return "Predecessor set to " + predecessor
 
 
-@app.route("/updatefingertable?s=<s>&i=<i>")
-def update_finger_table(s, i):
+@app.route("/updatefingertable/<s>&<i>")
+def update_finger_table(s: str, i: int):
+    i = int(i)
     node.update_finger_table(s, i)
+    pprint(node.finger_table.table)
     return "Finger table updated"
 
 
@@ -64,7 +66,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "-p", required=True, type=int, help="the port to run the app on"
     )
-
     args = parser.parse_args()
 
     node = Node(args.p)

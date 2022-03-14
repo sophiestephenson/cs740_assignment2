@@ -58,6 +58,11 @@ def in_modulo_range(
     return False
 
 
+## =================================================================
+##  REQUEST HELPERS
+## =================================================================
+
+
 def get_node_successor(node_ip: str) -> str:
     response = requests.get(node_ip + "/successor")
     data = response.json()
@@ -69,9 +74,9 @@ def get_node_successor_id(node_ip: str) -> int:
     return calculate_id_from_ip(successor)
 
 
-def find_id_successor(node_ip: str, id: int) -> str:
+def find_id_successor(node_ip: str, id: str) -> str:
     """Look up the successor of a specific ID"""
-    response = requests.get(node_ip + "/findidsuccessor?id=" + id)
+    response = requests.get(node_ip + "/findidsuccessor/" + id)
     data = response.json()
     return data["id_successor"]
 
@@ -83,14 +88,14 @@ def get_node_predecessor(node_ip: str) -> str:
 
 
 def get_node_closest_preceding_finger(node_ip: str, k: int) -> str:
-    response = requests.get(node_ip + "/closestprecedingfinger/" + k)
+    response = requests.get(node_ip + "/closestprecedingfinger/" + str(k))
     data = response.json()
     return data["finger"]
 
 
 def set_node_predecessor(node_ip: str, predecessor: str) -> None:
-    requests.get(node_ip + "/setpredecessor?predecessor=" + predecessor)
+    requests.get(node_ip + "/setpredecessor/" + predecessor)
 
 
 def update_node_finger_table(node_ip: str, s_ip: str, i: int) -> None:
-    requests.get(node_ip + "/updatefingertable?s=" + s_ip + "&i=" + i)
+    requests.get(node_ip + "/updatefingertable/" + s_ip + "&" + str(i))
