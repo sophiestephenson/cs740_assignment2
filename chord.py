@@ -24,7 +24,7 @@ def hello():
 @app.route("/lookup?id=<id>")
 def lookup(id):
     host_node_ip = node.find_successor(id)
-    return "The data with ID=" + id + " can be found at " + host_node_ip
+    return "The data with ID=" + str(id) + " can be found at " + host_node_ip
 
 
 @app.route("/successor")

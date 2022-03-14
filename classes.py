@@ -9,15 +9,15 @@
 
 from typing import Tuple
 
-from config import FIRST_NODE_PORT, M
+from config import STARTER_NODE_IP, M
 from utils import (
-    calculate_node_id,
+    calculate_id_from_ip,
     find_id_successor,
-    get_initial_node_ip,
     get_node_closest_preceding_finger,
     get_node_predecessor,
     get_node_successor,
     get_node_successor_id,
+    hex_mod_M,
     in_modulo_range,
     set_node_predecessor,
     update_node_finger_table,
@@ -28,46 +28,50 @@ class Node:
     def __init__(self, port: int):
         # init to basic things
         self.ip = "http://127.0.0.1:" + str(port)
-        self.id = calculate_node_id(self.ip)
+        self.id = calculate_id_from_ip(self.ip)
         self.predecessor = self.ip
         self.finger_table = FingerTable(self.ip, self.id)
 
-        # join operations
-        if port != FIRST_NODE_PORT:
+        # if not the first node, do join operations
+        if self.ip != STARTER_NODE_IP:
             self.init_finger_table()
             self.update_others()
 
     def successor(self) -> str:
         return self.finger_table.node_ip(0)
 
-    def find_successor(self, id: int) -> str:
+    def find_successor(self, id: str) -> str:
         n = self.find_predecessor(id)
         return get_node_successor(n)
 
-    def find_predecessor(self, id: int) -> str:
+    def find_predecessor(self, id: str) -> str:
         curr_id = self.id
         curr_ip = self.ip
         while not in_modulo_range(
-            id, curr_id, get_node_successor_id(curr_ip), end_incl=True
+            hex_mod_M(id),
+            hex_mod_M(curr_id),
+            hex_mod_M(get_node_successor_id(curr_ip)),
+            end_incl=True,
         ):
-            curr_ip = get_node_closest_preceding_finger(curr_ip, id)
-            curr_id = calculate_node_id(curr_ip)
+            curr_ip = get_node_closest_preceding_finger(curr_ip, hex_mod_M(id))
+            curr_id = calculate_id_from_ip(curr_ip)
         return curr_ip
 
-    def closest_preceding_finger(self, id: int) -> str:
+    def closest_preceding_finger(self, id: str) -> str:
         for i in range(M, -1, -1):
-            if in_modulo_range(self.finger_table.node_id(i), self.id, id):
+            if in_modulo_range(
+                hex_mod_M(self.finger_table.node_id(i)),
+                hex_mod_M(self.id),
+                hex_mod_M(id),
+            ):
                 return self.finger_table.node_ip(i)
         return self.ip
 
     def init_finger_table(self) -> None:
-        starter_node_ip = get_initial_node_ip()
-
         # use the existing starter node to find the first finger
         self.finger_table.set_node(
-            0, find_id_successor(starter_node_ip, self.finger_table.start(0))
+            0, find_id_successor(STARTER_NODE_IP, self.finger_table.start(0))
         )
-
         # this feels like it won't work
         successor_predecessor = get_node_predecessor(self.successor())
         self.predeccessor = successor_predecessor
@@ -76,7 +80,10 @@ class Node:
         for i in range(M - 1):
             finger_start = self.finger_table.start(i + 1)
             if in_modulo_range(
-                finger_start, self.id, self.finger_table.node_id(i), start_incl=True
+                finger_start,
+                hex_mod_M(self.id),
+                hex_mod_M(self.finger_table.node_id(i)),
+                start_incl=True,
             ):
                 self.finger_table.set_node(i + 1, self.finger_table.node_ip(i))
             else:
@@ -86,13 +93,15 @@ class Node:
 
     def update_others(self) -> None:
         for i in range(M):
-            p = self.find_predecessor(self.id - (2**i))
+            p = self.find_predecessor(hex_mod_M(self.id) - (2**i))
             update_node_finger_table(p, self.ip, i)
 
     def update_finger_table(self, s_ip: str, i: int) -> None:
-        s_id = calculate_node_id(s_ip)
         if in_modulo_range(
-            s_id, self.id, self.finger_table.node_id(i), start_incl=True
+            hex_mod_M(calculate_id_from_ip(s_ip)),
+            hex_mod_M(self.id),
+            hex_mod_M(self.finger_table.node_id(i)),
+            start_incl=True,
         ):
             self.finger_table.set_node(i, s_ip)
             p = self.predecessor
@@ -105,8 +114,8 @@ class FingerTable:
         self.table = []
         for i in range(M):
 
-            start = self.calculate_start(node_id, i)
-            interval = (start, self.calculate_start(node_id, (i + 1) % M))
+            start = self.calculate_start(hex_mod_M(node_id), i)
+            interval = (start, self.calculate_start(hex_mod_M(node_id), (i + 1) % M))
 
             entry = {
                 "start": start,
@@ -139,4 +148,4 @@ class FingerTable:
 
     def set_node(self, k: int, node_ip: str):
         self.table[k]["node ip"] = node_ip
-        self.table[k]["node id"] = calculate_node_id(node_ip)
+        self.table[k]["node id"] = calculate_id_from_ip(node_ip)

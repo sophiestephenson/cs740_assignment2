@@ -10,21 +10,17 @@ import hashlib
 
 import requests
 
-from config import FIRST_NODE_PORT, M
+from config import M
 
 
-def calculate_node_id(ip: str) -> int:
-    id = hashlib.sha1(ip.encode()).hexdigest()
-    return int(id, 16) % 2**M
+def calculate_id_from_ip(ip: str) -> str:
+    """Given a node's IP, get the hash value of the IP"""
+    return hashlib.sha1(ip.encode()).hexdigest()
 
 
-def id_to_mod(id: str):
+def hex_mod_M(id: str):
     """Takes a hex ID and returns the corresponding index mod M"""
     return int(id, 16) % 2**M
-
-
-def get_initial_node_ip() -> str:
-    return "http://127.0.0.1:" + FIRST_NODE_PORT
 
 
 def in_modulo_range(
@@ -70,10 +66,11 @@ def get_node_successor(node_ip: str) -> str:
 
 def get_node_successor_id(node_ip: str) -> int:
     successor = get_node_successor(node_ip)
-    return calculate_node_id(successor)
+    return calculate_id_from_ip(successor)
 
 
 def find_id_successor(node_ip: str, id: int) -> str:
+    """Look up the successor of a specific ID"""
     response = requests.get(node_ip + "/findidsuccessor?id=" + id)
     data = response.json()
     return data["id_successor"]
