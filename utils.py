@@ -7,6 +7,7 @@
 # ---------------------------------------------------------------------------
 
 import hashlib
+from pprint import pprint
 
 import requests  # type: ignore[import]
 
@@ -96,4 +97,10 @@ def set_node_predecessor(node_ip: str, predecessor: str) -> None:
 
 
 def update_node_finger_table(node_ip: str, s_ip: str, i: int) -> None:
-    requests.get("http://" + node_ip + "/updatefingertable/" + s_ip + "/" + str(i))
+    response = requests.get(
+        "http://" + node_ip + "/updatefingertable/" + s_ip + "/" + str(i)
+    )
+    while not response.ok:
+        response = requests.get(
+            "http://" + node_ip + "/updatefingertable/" + s_ip + "/" + str(i)
+        )

@@ -28,7 +28,7 @@ from utils import (
 class Node:
     def __init__(self, port: int):
         # init to basic things
-        self.ip = "localhost:" + str(port)
+        self.ip = "127.0.0.1:" + str(port)
         self.id = calculate_id_from_ip(self.ip)
         self.predecessor = self.ip
         self.finger_table = FingerTable(self.ip, self.id)
@@ -90,8 +90,11 @@ class Node:
             0, find_id_successor(STARTER_NODE_IP, self.finger_table.start(0))
         )
         successor_predecessor = get_node_predecessor(self.successor())
+        print("successor predecessor =", successor_predecessor)
         self.predeccessor = successor_predecessor
+        print("self.predecessor =", self.predeccessor)
         set_node_predecessor(successor_predecessor, self.ip)
+        print("self.predecessor =", self.predeccessor)
 
         print("*** initing rest of finger table")
         for i in range(M - 1):

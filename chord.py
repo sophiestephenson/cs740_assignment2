@@ -20,7 +20,17 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    return "Welcome to chord! My node ID is " + str(node.id)
+    return (
+        "Welcome to chord! <ul><li>My node ID is "
+        + str(node.id)
+        + "</li><li>My successor is "
+        + node.successor()
+        + "</li><li>My predecessor is "
+        + node.predecessor
+        + "</li><li>My finger table is"
+        + str(node.finger_table.table)
+        + "</li></ul>"
+    )
 
 
 @app.route("/lookup/<id>")
@@ -72,4 +82,4 @@ if __name__ == "__main__":
 
     node = Node(args.p)
 
-    app.run(port=args.p)
+    app.run(port=args.p, use_reloader=False)
