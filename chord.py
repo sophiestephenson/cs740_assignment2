@@ -8,11 +8,12 @@
 
 import argparse
 from pprint import pprint
+from time import sleep
 
 from flask import Flask, jsonify
 
 from classes import Node
-from utils import hex_mod_M
+from config import M
 
 app = Flask(__name__)
 
@@ -24,7 +25,7 @@ def hello():
 
 @app.route("/lookup/<id>")
 def lookup(id: str):
-    id_mod = hex_mod_M(id)
+    id_mod = int(id, 16) % 2**M
     host_node_ip = node.find_successor(id_mod)
     return "The data with ID=" + id + " can be found at " + host_node_ip
 
@@ -44,9 +45,8 @@ def closest_preceding_finger(id: int):
     return jsonify(finger=node.closest_preceding_finger(int(id)))
 
 
-@app.route("/findidsuccessor/<id>")
+@app.route("/findsuccessor/<id>")
 def find_id_successor(id: int):
-    print("find id successor")
     return jsonify(id_successor=node.find_successor(int(id)))
 
 
@@ -56,22 +56,20 @@ def set_predecessor(predecessor: str):
     return "Predecessor set to " + predecessor
 
 
-@app.route("/updatefingertable/<s>&<i>")
+@app.route("/updatefingertable/<s>/<i>")
 def update_finger_table(s: str, i: int):
-    i = int(i)
-    node.update_finger_table(s, i)
+    node.update_finger_table(s, int(i))
     pprint(node.finger_table.table)
-    return "Finger table updated"
+    return "Finger table updated\n\n" + str(node.finger_table.table)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="run a new chord node")
     parser.add_argument(
-        "-p", required=True, type=int, help="the port to run the app on"
+        "-p", required=True, type=int, help="the port to run the node on"
     )
     args = parser.parse_args()
 
     node = Node(args.p)
-    pprint(node.finger_table.table)
 
-    app.run(port=args.p, debug=True)
+    app.run(port=args.p)

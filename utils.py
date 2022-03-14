@@ -7,20 +7,15 @@
 # ---------------------------------------------------------------------------
 
 import hashlib
-from time import sleep
 
 import requests  # type: ignore[import]
 
 from config import M
 
 
-def calculate_id_from_ip(ip: str) -> str:
+def calculate_id_from_ip(ip: str) -> int:
     """Given a node's IP, get the hash value of the IP"""
-    return hashlib.sha1(ip.encode()).hexdigest()
-
-
-def hex_mod_M(id: str) -> int:
-    """Takes a hex ID and returns the corresponding index mod M"""
+    id = hashlib.sha1(ip.encode()).hexdigest()
     return int(id, 16) % 2**M
 
 
@@ -67,41 +62,38 @@ def in_modulo_range(
 
 
 def get_node_successor(node_ip: str) -> str:
-    print("getting the successor of node", node_ip)
-    sleep(2)
-    response = requests.get(node_ip + "/successor")
+    response = requests.get("http://" + node_ip + "/successor")
     data = response.json()
     return data["successor"]
 
 
-def get_node_successor_id(node_ip: str) -> str:
+def get_node_successor_id(node_ip: str) -> int:
     successor = get_node_successor(node_ip)
     return calculate_id_from_ip(successor)
 
 
 def find_id_successor(node_ip: str, id: int) -> str:
     """Look up the successor of a specific ID (mod M)"""
-    print("find_id_successor(", node_ip, ",", id)
-    response = requests.get(node_ip + "/findidsuccessor/" + str(id))
+    response = requests.get("http://" + node_ip + "/findsuccessor/" + str(id))
     data = response.json()
     return data["id_successor"]
 
 
 def get_node_predecessor(node_ip: str) -> str:
-    response = requests.get(node_ip + "/predecessor")
+    response = requests.get("http://" + node_ip + "/predecessor")
     data = response.json()
     return data["predecessor"]
 
 
 def get_node_closest_preceding_finger(node_ip: str, k: int) -> str:
-    response = requests.get(node_ip + "/closestprecedingfinger/" + str(k))
+    response = requests.get("http://" + node_ip + "/closestprecedingfinger/" + str(k))
     data = response.json()
     return data["finger"]
 
 
 def set_node_predecessor(node_ip: str, predecessor: str) -> None:
-    requests.get(node_ip + "/setpredecessor/" + predecessor)
+    requests.get("http://" + node_ip + "/setpredecessor/" + predecessor)
 
 
 def update_node_finger_table(node_ip: str, s_ip: str, i: int) -> None:
-    requests.get(node_ip + "/updatefingertable/" + s_ip + "&" + str(i))
+    requests.get("http://" + node_ip + "/updatefingertable/" + s_ip + "/" + str(i))
