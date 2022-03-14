@@ -7,8 +7,9 @@
 # ---------------------------------------------------------------------------
 
 import hashlib
+from time import sleep
 
-import requests
+import requests  # type: ignore[import]
 
 from config import M
 
@@ -18,7 +19,7 @@ def calculate_id_from_ip(ip: str) -> str:
     return hashlib.sha1(ip.encode()).hexdigest()
 
 
-def hex_mod_M(id: str):
+def hex_mod_M(id: str) -> int:
     """Takes a hex ID and returns the corresponding index mod M"""
     return int(id, 16) % 2**M
 
@@ -38,18 +39,20 @@ def in_modulo_range(
     Returns:
         True if item is in the range, False otherwise
     """
+    if start == end:
+        return True
 
     i = start
     while i != end:
         # skip the start value if we are not start inclusive
         if i == start and not start_incl:
-            continue
+            i = (i + 1) % (2**M)
 
         if i == item:
             return True
 
         # increment mod M
-        i = (i + 1) % M
+        i = (i + 1) % (2**M)
 
     # deal with edge case
     if end_incl and item == end:
@@ -64,19 +67,22 @@ def in_modulo_range(
 
 
 def get_node_successor(node_ip: str) -> str:
+    print("getting the successor of node", node_ip)
+    sleep(2)
     response = requests.get(node_ip + "/successor")
     data = response.json()
     return data["successor"]
 
 
-def get_node_successor_id(node_ip: str) -> int:
+def get_node_successor_id(node_ip: str) -> str:
     successor = get_node_successor(node_ip)
     return calculate_id_from_ip(successor)
 
 
-def find_id_successor(node_ip: str, id: str) -> str:
-    """Look up the successor of a specific ID"""
-    response = requests.get(node_ip + "/findidsuccessor/" + id)
+def find_id_successor(node_ip: str, id: int) -> str:
+    """Look up the successor of a specific ID (mod M)"""
+    print("find_id_successor(", node_ip, ",", id)
+    response = requests.get(node_ip + "/findidsuccessor/" + str(id))
     data = response.json()
     return data["id_successor"]
 

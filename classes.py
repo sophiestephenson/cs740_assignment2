@@ -7,7 +7,8 @@
 # ---------------------------------------------------------------------------
 
 
-from typing import Tuple
+from pprint import pprint
+from typing import Tuple, TypedDict
 
 from config import STARTER_NODE_IP, M
 from utils import (
@@ -40,44 +41,69 @@ class Node:
     def successor(self) -> str:
         return self.finger_table.node_ip(0)
 
-    def find_successor(self, id: str) -> str:
+    def successor_id(self) -> str:
+        return self.finger_table.node_id(0)
+
+    def find_successor(self, id: int) -> str:
+        """ID is mod M"""
+        print("find_successor(", id, ")")
         n = self.find_predecessor(id)
+        print("n=", n)
+        if n == self.ip:
+            print("return my successor")
+            return self.successor()
         return get_node_successor(n)
 
-    def find_predecessor(self, id: str) -> str:
+    def find_predecessor(self, id: int) -> str:
+        """ID is mod M"""
+        print("finding the predecessor of", id)
         curr_id = self.id
         curr_ip = self.ip
+        curr_ip_successor = self.successor_id()
+
         while not in_modulo_range(
-            hex_mod_M(id),
+            id,
             hex_mod_M(curr_id),
-            hex_mod_M(get_node_successor_id(curr_ip)),
+            hex_mod_M(curr_ip_successor),
             end_incl=True,
         ):
-            curr_ip = get_node_closest_preceding_finger(curr_ip, hex_mod_M(id))
+            if curr_id == self.id:
+                curr_ip = self.closest_preceding_finger(id)
+            else:
+                curr_ip = get_node_closest_preceding_finger(curr_ip, id)
+
             curr_id = calculate_id_from_ip(curr_ip)
+            curr_ip_successor = get_node_successor_id(curr_ip)
         return curr_ip
 
-    def closest_preceding_finger(self, id: str) -> str:
-        for i in range(M, -1, -1):
+    def closest_preceding_finger(self, id: int) -> str:
+        """ID is mod M"""
+        print("getting closest preceding finger of", id)
+        for i in range(M - 1, -1, -1):
             if in_modulo_range(
                 hex_mod_M(self.finger_table.node_id(i)),
                 hex_mod_M(self.id),
-                hex_mod_M(id),
+                id,
             ):
                 return self.finger_table.node_ip(i)
         return self.ip
 
     def init_finger_table(self) -> None:
+        print("*** setting up finger table")
         # use the existing starter node to find the first finger
         self.finger_table.set_node(
             0, find_id_successor(STARTER_NODE_IP, self.finger_table.start(0))
         )
+
+        print("successor = " + self.successor())
         # this feels like it won't work
         successor_predecessor = get_node_predecessor(self.successor())
         self.predeccessor = successor_predecessor
         set_node_predecessor(successor_predecessor, self.ip)
 
+        print("initing rest of finger table")
         for i in range(M - 1):
+            print("i =", i)
             finger_start = self.finger_table.start(i + 1)
             if in_modulo_range(
                 finger_start,
@@ -88,10 +114,12 @@ class Node:
                 self.finger_table.set_node(i + 1, self.finger_table.node_ip(i))
             else:
                 self.finger_table.set_node(
-                    i + 1, get_node_successor(self.finger_table.start(i + 1))
+                    i + 1,
+                    find_id_successor(STARTER_NODE_IP, self.finger_table.start(i + 1)),
                 )
 
     def update_others(self) -> None:
+        print("*** updating others' finger tables")
         for i in range(M):
             p = self.find_predecessor(hex_mod_M(self.id) - (2**i))
             update_node_finger_table(p, self.ip, i)
@@ -108,6 +136,13 @@ class Node:
             update_node_finger_table(p, s_ip, i)
 
 
+class FingerTableEntry(TypedDict):
+    start: int
+    interval: Tuple[int, int]
+    node_ip: str
+    node_id: str
+
+
 class FingerTable:
     def __init__(self, node_ip: str, node_id: str):
 
@@ -117,13 +152,15 @@ class FingerTable:
             start = self.calculate_start(hex_mod_M(node_id), i)
             interval = (start, self.calculate_start(hex_mod_M(node_id), (i + 1) % M))
 
-            entry = {
+            entry: FingerTableEntry = {
                 "start": start,
                 "interval": interval,
-                "node ip": node_ip,
-                "node id": node_id,
+                "node_ip": node_ip,
+                "node_id": node_id,
             }
             self.table.append(entry)
+
+        pprint(self.table)
 
     def calculate_start(self, n: int, k: int) -> int:
         return (n + (2 ** (k % M))) % (2**M)
@@ -131,21 +168,21 @@ class FingerTable:
     def start(self, k: int) -> int:
         return self.table[k]["start"]
 
-    def interval(self, k: int) -> Tuple[int]:
+    def interval(self, k: int) -> Tuple[int, int]:
         return self.table[k]["interval"]
 
     def node_ip(self, k: int) -> str:
-        return self.table[k]["node ip"]
+        return self.table[k]["node_ip"]
 
-    def node_id(self, k: int) -> int:
-        return self.table[k]["node id"]
+    def node_id(self, k: int) -> str:
+        return self.table[k]["node_id"]
 
     def set_start(self, k: int, start: int):
         self.table[k]["start"] = start
 
-    def set_interval(self, k: int, interval: Tuple[int]):
+    def set_interval(self, k: int, interval: Tuple[int, int]):
         self.table[k]["interval"] = interval
 
     def set_node(self, k: int, node_ip: str):
-        self.table[k]["node ip"] = node_ip
-        self.table[k]["node id"] = calculate_id_from_ip(node_ip)
+        self.table[k]["node_ip"] = node_ip
+        self.table[k]["node_id"] = calculate_id_from_ip(node_ip)

@@ -12,6 +12,7 @@ from pprint import pprint
 from flask import Flask, jsonify
 
 from classes import Node
+from utils import hex_mod_M
 
 app = Flask(__name__)
 
@@ -23,7 +24,8 @@ def hello():
 
 @app.route("/lookup/<id>")
 def lookup(id: str):
-    host_node_ip = node.find_successor(id)
+    id_mod = hex_mod_M(id)
+    host_node_ip = node.find_successor(id_mod)
     return "The data with ID=" + id + " can be found at " + host_node_ip
 
 
@@ -38,13 +40,14 @@ def predecessor():
 
 
 @app.route("/closestprecedingfinger/<id>")
-def closest_preceding_finger(id: str):
-    return jsonify(finger=node.closest_preceding_finger(id))
+def closest_preceding_finger(id: int):
+    return jsonify(finger=node.closest_preceding_finger(int(id)))
 
 
 @app.route("/findidsuccessor/<id>")
-def find_id_successor(id: str):
-    return jsonify(id_successor=node.find_successor(id))
+def find_id_successor(id: int):
+    print("find id successor")
+    return jsonify(id_successor=node.find_successor(int(id)))
 
 
 @app.route("/setpredecessor/<predecessor>")
@@ -71,4 +74,4 @@ if __name__ == "__main__":
     node = Node(args.p)
     pprint(node.finger_table.table)
 
-    app.run(port=args.p)
+    app.run(port=args.p, debug=True)
