@@ -26,7 +26,7 @@ Once you've got the Chord network up and running, you can interact with the node
 - Use ```127.0.0.1:[port]/lookuphex/[key]``` to get the location of data with a specific hexidecimal key value. Internally, this function maps the key value to an ID modulo 2^M.
 
 ## Adding nodes
-You can also add your own nodes to see how they interact with everybody. To do so, follow these steps:
+You can also add your own nodes. To do so, follow these steps:
 1. Choose a port in the list [5014, 5015, 5018, 5019]. These nodes will not generate IDs that conflict with existing nodes.
 2. Run ```$ python chord.py -p [port] &``` to start the Flask app for that node.
 
