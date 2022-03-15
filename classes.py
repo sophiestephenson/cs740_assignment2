@@ -46,9 +46,7 @@ class Node:
         if self.ip != STARTER_NODE_IP and not self.joined:
             print("*** JOINING NETWORK")
             self.init_finger_table()
-            pprint(self.summary())
             self.update_others()
-            pprint(self.summary())
             self.joined = True
             print("*** SUCCESSFULLY JOINED")
 
@@ -134,20 +132,19 @@ class Node:
         for i in range(M):
             p = self.find_predecessor((self.id - (2**i)) % 2**M)
             if p != self.ip:
-                response = update_node_finger_table(p, self.ip, i)
+                response = update_node_finger_table(p, self.ip, i, self.ip)
+                print("RECEIVED RESPONSE =", response)
 
                 # deal with case where the other node sends a response right back here
-                print("response here = ", response)
                 if response == True:
-                    self.update_finger_table(self.ip, i)
+                    self.update_finger_table(self.ip, i, self.ip)
             else:
-                self.update_finger_table(self.ip, i)
+                self.update_finger_table(self.ip, i, self.ip)
 
     #
     # CHANGE FROM PAPER - THE INCLUSIVITY IS OPPOSITE
     #
-    def update_finger_table(self, s_ip: str, i: int) -> bool:
-        print("update_finger_table(", s_ip, ",", i, ")")
+    def update_finger_table(self, s_ip: str, i: int, orig_sender: str) -> bool:
         assert i >= 0 and i < M
 
         if in_mod_range(
@@ -159,9 +156,10 @@ class Node:
             print("in range, updating")
             self.finger_table.set_node(i, s_ip)
             p = self.predecessor
-            if p != s_ip:
-                update_node_finger_table(p, s_ip, i)
+            if p != orig_sender:
+                return update_node_finger_table(p, s_ip, i, orig_sender)
             else:
+                print("Gotta update the sender's table too")
                 return True
 
         return False

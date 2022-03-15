@@ -26,18 +26,25 @@ def init():
 @app.route("/")
 def summary():
     node.join()
-    pprint(node.summary())
     return (
         "Welcome to Chord!"
-        + "<ul><li>My node ID is "
+        + "<ul><li>ID = "
         + str(node.id)
-        + "</li><li>My successor is "
+        + "</li><li>Successor = "
         + node.successor()
-        + "</li><li>My predecessor is "
+        + "</li><li>Predecessor = "
         + node.predecessor
-        + "</li><li>My finger table is"
-        + str(node.finger_table.table)
-        + "</li></ul>"
+        + "</li><li>Finger table:<ul><li>"
+        + str(node.finger_table.table[0])
+        + "</li><li>"
+        + str(node.finger_table.table[1])
+        + "</li><li>"
+        + str(node.finger_table.table[2])
+        + "</li><li>"
+        + str(node.finger_table.table[3])
+        + "</li><li>"
+        + str(node.finger_table.table[4])
+        + "</li></li></ul>"
     )
 
 
@@ -51,41 +58,41 @@ def lookup(id: str):
 
 @app.route("/successor")
 def successor():
-    pprint(node.summary())
+    # pprint(node.summary())
     return jsonify(successor=node.successor())
 
 
 @app.route("/predecessor")
 def predecessor():
-    pprint(node.summary())
+    # pprint(node.summary())
     return jsonify(predecessor=node.predecessor)
 
 
 @app.route("/closestprecedingfinger/<id>")
 def closest_preceding_finger(id: int):
-    pprint(node.summary())
+    # pprint(node.summary())
     return jsonify(finger=node.closest_preceding_finger(int(id)))
 
 
 @app.route("/findsuccessor/<id>")
 def find_id_successor(id: int):
-    pprint(node.summary())
+    # pprint(node.summary())
     return jsonify(id_successor=node.find_successor(int(id)))
 
 
 @app.route("/setpredecessor/<predecessor>")
 def set_predecessor(predecessor: str):
-    pprint(node.summary())
+    # pprint(node.summary())
     node.predecessor = predecessor
     return "Predecessor set to " + predecessor
 
 
-@app.route("/updatefingertable/<s>/<i>")
-def update_finger_table(s: str, i: int):
-    pprint(node.summary())
-    response = node.update_finger_table(s, int(i))
-    print("RESPONSE STARTS AT", response)
-    pprint(node.finger_table.table)
+@app.route("/updatefingertable/<s>/<i>/<sender>")
+def update_finger_table(s: str, i: int, sender: str):
+    # pprint(node.summary())
+    response = node.update_finger_table(s, int(i), sender)
+    # pprint(node.finger_table.table)
+    print("SENDING RESPONSE =", response)
     return jsonify(update_my_table=response)
 
 
