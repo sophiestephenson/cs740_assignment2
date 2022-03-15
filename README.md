@@ -1,6 +1,6 @@
 # CS740 Assignment 2: Chord
 
-I have implemented a simplified version of Chord in Python using Flask apps for each node. 
+I have implemented a simplified version of Chord in Python using Flask apps for each node. The code lives at this repository: [https://github.com/sophiestephenson/cs740_assignment2](https://github.com/sophiestephenson/cs740_assignment2).
 
 ## Setup
 Ensure you have all requirements installed by running
