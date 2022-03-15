@@ -7,7 +7,6 @@
 # ---------------------------------------------------------------------------
 
 import hashlib
-from time import sleep
 
 import requests  # type: ignore[import]
 
@@ -95,12 +94,10 @@ def get_node_closest_preceding_finger(node_ip: str, k: int) -> str:
 
 
 def set_node_predecessor(node_ip: str, predecessor: str) -> None:
-    print("set_node_predecessor(", node_ip, ",", predecessor, ")")
     requests.get("http://" + node_ip + "/setpredecessor/" + predecessor)
 
 
 def update_node_finger_table(node_ip: str, s_ip: str, i: int, sender: str) -> bool:
-    print("update_node_finger_table(", node_ip, ",", s_ip, ",", i, ")")
     response = requests.get(
         "http://" + node_ip + "/updatefingertable/" + s_ip + "/" + str(i) + "/" + sender
     )

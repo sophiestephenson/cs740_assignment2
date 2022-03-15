@@ -8,9 +8,7 @@
 
 
 from pprint import pprint
-from typing import Any, Tuple, TypedDict
-
-from flask import Response, jsonify
+from typing import Tuple, TypedDict
 
 from config import STARTER_NODE_IP, M
 from utils import (
@@ -44,11 +42,9 @@ class Node:
     def join(self) -> None:
         # if not the first node, do join operations
         if self.ip != STARTER_NODE_IP and not self.joined:
-            print("*** JOINING NETWORK")
             self.init_finger_table()
             self.update_others()
             self.joined = True
-            print("*** SUCCESSFULLY JOINED")
 
     def find_successor(self, id: int) -> str:
         """ID is mod M"""
@@ -97,7 +93,6 @@ class Node:
         return self.ip
 
     def init_finger_table(self) -> None:
-        print("*** setting up finger table")
 
         # use the existing starter node to find our successor
         my_successor = find_successor(STARTER_NODE_IP, self.finger_table.start(0))
@@ -125,15 +120,11 @@ class Node:
                 )
                 self.finger_table.set_node(i + 1, next_finger)
 
-        pprint(self.finger_table.table)
-
     def update_others(self) -> None:
-        print("*** updating others' finger tables")
         for i in range(M):
             p = self.find_predecessor((self.id - (2**i)) % 2**M)
             if p != self.ip:
                 response = update_node_finger_table(p, self.ip, i, self.ip)
-                print("RECEIVED RESPONSE =", response)
 
                 # deal with case where the other node sends a response right back here
                 if response == True:
@@ -141,25 +132,21 @@ class Node:
             else:
                 self.update_finger_table(self.ip, i, self.ip)
 
-    #
-    # CHANGE FROM PAPER - THE INCLUSIVITY IS OPPOSITE
-    #
     def update_finger_table(self, s_ip: str, i: int, orig_sender: str) -> bool:
         assert i >= 0 and i < M
 
         if in_mod_range(
             ip_to_id(s_ip),
-            self.finger_table.start(i),  # trying, if bad turn back to self.ed
+            self.finger_table.start(i),
+            # self.id,
             self.finger_table.node_id(i),
             start_incl=True,
         ):
-            print("in range, updating")
             self.finger_table.set_node(i, s_ip)
             p = self.predecessor
             if p != orig_sender:
                 return update_node_finger_table(p, s_ip, i, orig_sender)
             else:
-                print("Gotta update the sender's table too")
                 return True
 
         return False
@@ -197,8 +184,6 @@ class FingerTable:
                 "node_id": node_id,
             }
             self.table.append(entry)
-
-        pprint(self.table)
 
     def calculate_start(self, n: int, k: int) -> int:
         return (n + (2 ** (k % M))) % (2**M)
