@@ -131,7 +131,6 @@ class Node:
 
         if in_mod_range(
             ip_to_id(s_ip),
-            # self.finger_table.start(i),
             self.id,
             self.finger_table.node_id(i),
             # start_incl=True,
