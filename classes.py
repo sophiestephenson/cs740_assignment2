@@ -54,6 +54,8 @@ class Node:
 
     def find_successor(self, id: int) -> str:
         """ID is mod M"""
+        assert id >= 0 and id < 2**M
+
         n = self.find_predecessor(id)
         if n == self.ip:
             return self.successor()
@@ -61,6 +63,8 @@ class Node:
 
     def find_predecessor(self, id: int) -> str:
         """ID is mod M"""
+        assert id >= 0 and id < 2**M
+
         curr_id = self.id
         curr_ip = self.ip
         succ_id = self.successor_id()
@@ -83,6 +87,8 @@ class Node:
 
     def closest_preceding_finger(self, id: int) -> str:
         """ID is mod M"""
+        assert id >= 0 and id < 2**M
+
         for i in range(M - 1, -1, -1):
             if in_mod_range(
                 self.finger_table.node_id(i),
@@ -139,6 +145,8 @@ class Node:
     #
     def update_finger_table(self, s_ip: str, i: int) -> None:
         print("update_finger_table(", s_ip, ",", i, ")")
+        assert i >= 0 and i < M
+
         if in_mod_range(
             ip_to_id(s_ip),
             self.id,
