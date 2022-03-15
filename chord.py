@@ -55,10 +55,18 @@ def init():
 
 
 @app.route("/lookup/<id>")
-def lookup(id: str):
+def lookup(id: int):
+    """ID is a value from 0 to (2**M)-1"""
+    id = int(id)
+    host_node_ip = node.find_successor(id)
+    return "The data with ID=" + str(id) + ", and can be found at " + host_node_ip
+
+
+@app.route("/lookuphex/<id>")
+def lookuphex(id: str):
     """ID is a hex string identifier for a specific piece of data"""
     id_mod = int(id, 16) % 2**M
-    host_node_ip = node.find_successor(id_mod)
+    host_node_ip = node.find_successor(int(id_mod))
     return (
         "The data with ID="
         + id

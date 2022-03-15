@@ -18,7 +18,6 @@ for i in "${!ports[@]}"; do
     done
 done
 
-
 echo "*** CHECKING SUCCESSORS"
 correct=0
 for i in "${!ports[@]}"; do
@@ -42,12 +41,11 @@ for i in "${!ports[@]}"; do
 done
 echo "$correct/10 have the correct predecessor\n"
 
-
 echo "*** CHECKING LOOKUPS"
 for p in "${ports[@]}"; do
     correct=0
     for i in {0..31}; do
-        ip=$(curl -s 127.0.0.1:$p/lookup/$i | awk '{print $13}')
+        ip=$(curl -s 127.0.0.1:$p/lookup/$i | awk '{print $10}')
         if [ "$ip" == "${correctips[$i]}" ] 
         then
             ((correct=correct+1))

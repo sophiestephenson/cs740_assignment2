@@ -35,8 +35,8 @@ echo "*** CHECKING LOOKUP AGREEMENT"
 for i in {0..31}; do
     agree=0
     for p in "${ports[@]}"; do
-        compareto=$(curl -s 127.0.0.1:$p/lookup/$i | awk '{print $13}')
-        ip=$(curl -s 127.0.0.1:$p/lookup/$i | awk '{print $13}')
+        compareto=$(curl -s 127.0.0.1:$p/lookup/$i | awk '{print $10}')
+        ip=$(curl -s 127.0.0.1:$p/lookup/$i | awk '{print $10}')
         if [ "$ip" == "$compareto" ]
         then
             ((agree=agree+1))
