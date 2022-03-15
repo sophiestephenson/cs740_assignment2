@@ -36,6 +36,8 @@ def in_mod_range(
     """
 
     if start == end:
+        if not start_incl and not end_incl and start == item:
+            return False
         return True
 
     i = start

@@ -21,26 +21,31 @@ log.setLevel(logging.ERROR)
 
 @app.route("/")
 def summary_page():
-    return (
-        "Welcome to Chord!"
-        + "<ul><li>ID = "
+    response = (
+        "<h2>Welcome to Chord!</h2>ID = "
         + str(node.id)
-        + "</li><li>Successor = "
+        + "<br>Successor = "
         + node.successor()
-        + "</li><li>Predecessor = "
+        + "<br>Predecessor = "
         + node.predecessor
-        + "</li><li>Finger table:<ul><li>"
-        + str(node.finger_table.table[0])
-        + "</li><li>"
-        + str(node.finger_table.table[1])
-        + "</li><li>"
-        + str(node.finger_table.table[2])
-        + "</li><li>"
-        + str(node.finger_table.table[3])
-        + "</li><li>"
-        + str(node.finger_table.table[4])
-        + "</li></li></ul>"
+        + "<br><br>Finger table:</p>"
+        + "<table><tr><th>Index</th>"
+        + "<th>Start</th>"
+        + "<th>Node ID</th>"
+        + "<th>Node IP</th></tr>"
     )
+
+    for i in range(M):
+        response += "<tr>"
+        response += "<td>" + str(i) + "</td>"
+        response += "<td>" + str(node.finger_table.start(i)) + "</td>"
+        response += "<td>" + str(node.finger_table.node_id(i)) + "</td>"
+        response += "<td>" + node.finger_table.node_ip(i) + "</td>"
+        response += "</tr>"
+
+    response += "</table>"
+
+    return response
 
 
 @app.route("/join")

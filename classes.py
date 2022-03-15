@@ -84,16 +84,11 @@ class Node:
         assert id >= 0 and id < 2**M
 
         for i in range(M - 1, -1, -1):
-            if in_mod_range(
-                self.finger_table.node_id(i),
-                self.id,
-                id,
-            ):
+            if in_mod_range(self.finger_table.node_id(i), self.id, id):
                 return self.finger_table.node_ip(i)
         return self.ip
 
     def init_finger_table(self) -> None:
-
         # use the existing starter node to find our successor
         my_successor = find_successor(STARTER_NODE_IP, self.finger_table.start(0))
         self.finger_table.set_node(0, my_successor)
@@ -110,7 +105,6 @@ class Node:
                 self.finger_table.node_id(i),
                 start_incl=True,
             ):
-                # just reuse the previous finger if we can
                 self.finger_table.set_node(i + 1, self.finger_table.node_ip(i))
 
             else:
@@ -137,10 +131,11 @@ class Node:
 
         if in_mod_range(
             ip_to_id(s_ip),
-            self.finger_table.start(i),
-            # self.id,
+            # self.finger_table.start(i),
+            self.id,
             self.finger_table.node_id(i),
-            start_incl=True,
+            # start_incl=True,
+            end_incl=True,
         ):
             self.finger_table.set_node(i, s_ip)
             p = self.predecessor
@@ -163,7 +158,6 @@ class Node:
 
 class FingerTableEntry(TypedDict):
     start: int
-    interval: Tuple[int, int]
     node_ip: str
     node_id: int
 
@@ -175,11 +169,9 @@ class FingerTable:
         for i in range(M):
 
             start = self.calculate_start(node_id, i)
-            interval = (start, self.calculate_start(node_id, (i + 1) % M))
 
             entry: FingerTableEntry = {
                 "start": start,
-                "interval": interval,
                 "node_ip": node_ip,
                 "node_id": node_id,
             }
@@ -191,9 +183,6 @@ class FingerTable:
     def start(self, k: int) -> int:
         return self.table[k]["start"]
 
-    def interval(self, k: int) -> Tuple[int, int]:
-        return self.table[k]["interval"]
-
     def node_ip(self, k: int) -> str:
         return self.table[k]["node_ip"]
 
@@ -202,9 +191,6 @@ class FingerTable:
 
     def set_start(self, k: int, start: int):
         self.table[k]["start"] = start
-
-    def set_interval(self, k: int, interval: Tuple[int, int]):
-        self.table[k]["interval"] = interval
 
     def set_node(self, k: int, node_ip: str):
         self.table[k]["node_ip"] = node_ip

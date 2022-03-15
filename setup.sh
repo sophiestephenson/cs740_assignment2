@@ -14,7 +14,7 @@ sleep 1
 echo "Joining the network..."
 for port in "${ports[@]}"; do
     curl 127.0.0.1:$port/join
-    sleep 1
+    sleep 0.5
 done
 
 echo "\n*** SETUP COMPLETE ***"
