@@ -99,12 +99,11 @@ def set_node_predecessor(node_ip: str, predecessor: str) -> None:
     requests.get("http://" + node_ip + "/setpredecessor/" + predecessor)
 
 
-def update_node_finger_table(node_ip: str, s_ip: str, i: int) -> None:
+def update_node_finger_table(node_ip: str, s_ip: str, i: int) -> bool:
     print("update_node_finger_table(", node_ip, ",", s_ip, ",", i, ")")
     response = requests.get(
         "http://" + node_ip + "/updatefingertable/" + s_ip + "/" + str(i)
     )
-    while not response.ok:
-        response = requests.get(
-            "http://" + node_ip + "/updatefingertable/" + s_ip + "/" + str(i)
-        )
+    data = response.json()
+    print("RESPONSE =", data["update_my_table"])
+    return data["update_my_table"]

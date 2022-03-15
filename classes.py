@@ -110,8 +110,6 @@ class Node:
         self.predecessor = successor_predecessor
         set_node_predecessor(my_successor, self.ip)
 
-        print("MY PREDECESSOR =", self.predecessor)
-
         for i in range(M - 1):
             if in_mod_range(
                 self.finger_table.start(i + 1),
@@ -136,28 +134,37 @@ class Node:
         for i in range(M):
             p = self.find_predecessor((self.id - (2**i)) % 2**M)
             if p != self.ip:
-                update_node_finger_table(p, self.ip, i)
+                response = update_node_finger_table(p, self.ip, i)
+
+                # deal with case where the other node sends a response right back here
+                print("response here = ", response)
+                if response == True:
+                    self.update_finger_table(self.ip, i)
             else:
                 self.update_finger_table(self.ip, i)
 
     #
     # CHANGE FROM PAPER - THE INCLUSIVITY IS OPPOSITE
     #
-    def update_finger_table(self, s_ip: str, i: int) -> None:
+    def update_finger_table(self, s_ip: str, i: int) -> bool:
         print("update_finger_table(", s_ip, ",", i, ")")
         assert i >= 0 and i < M
 
         if in_mod_range(
             ip_to_id(s_ip),
-            self.id,
+            self.finger_table.start(i),  # trying, if bad turn back to self.ed
             self.finger_table.node_id(i),
-            end_incl=True,
+            start_incl=True,
         ):
             print("in range, updating")
             self.finger_table.set_node(i, s_ip)
             p = self.predecessor
-            if not p == s_ip:
+            if p != s_ip:
                 update_node_finger_table(p, s_ip, i)
+            else:
+                return True
+
+        return False
 
     def summary(self):
         return {
@@ -171,7 +178,7 @@ class Node:
 
 class FingerTableEntry(TypedDict):
     start: int
-    # interval: Tuple[int, int]
+    interval: Tuple[int, int]
     node_ip: str
     node_id: int
 
@@ -183,11 +190,11 @@ class FingerTable:
         for i in range(M):
 
             start = self.calculate_start(node_id, i)
-            # interval = (start, self.calculate_start(node_id, (i + 1) % M))
+            interval = (start, self.calculate_start(node_id, (i + 1) % M))
 
             entry: FingerTableEntry = {
                 "start": start,
-                # "interval": interval,
+                "interval": interval,
                 "node_ip": node_ip,
                 "node_id": node_id,
             }
@@ -201,8 +208,8 @@ class FingerTable:
     def start(self, k: int) -> int:
         return self.table[k]["start"]
 
-    # def interval(self, k: int) -> Tuple[int, int]:
-    #    return self.table[k]["interval"]
+    def interval(self, k: int) -> Tuple[int, int]:
+        return self.table[k]["interval"]
 
     def node_ip(self, k: int) -> str:
         return self.table[k]["node_ip"]
@@ -213,8 +220,8 @@ class FingerTable:
     def set_start(self, k: int, start: int):
         self.table[k]["start"] = start
 
-    # def set_interval(self, k: int, interval: Tuple[int, int]):
-    #    self.table[k]["interval"] = interval
+    def set_interval(self, k: int, interval: Tuple[int, int]):
+        self.table[k]["interval"] = interval
 
     def set_node(self, k: int, node_ip: str):
         self.table[k]["node_ip"] = node_ip

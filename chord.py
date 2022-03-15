@@ -83,9 +83,10 @@ def set_predecessor(predecessor: str):
 @app.route("/updatefingertable/<s>/<i>")
 def update_finger_table(s: str, i: int):
     pprint(node.summary())
-    node.update_finger_table(s, int(i))
+    response = node.update_finger_table(s, int(i))
+    print("RESPONSE STARTS AT", response)
     pprint(node.finger_table.table)
-    return "Finger table updated\n\n" + str(node.finger_table.table)
+    return jsonify(update_my_table=response)
 
 
 if __name__ == "__main__":
