@@ -7,20 +7,20 @@
 # ---------------------------------------------------------------------------
 
 import hashlib
-from pprint import pprint
+from time import sleep
 
 import requests  # type: ignore[import]
 
 from config import M
 
 
-def calculate_id_from_ip(ip: str) -> int:
-    """Given a node's IP, get the hash value of the IP"""
+def ip_to_id(ip: str) -> int:
+    """Given a node's IP, get the hash value of the IP, mod 2^M"""
     id = hashlib.sha1(ip.encode()).hexdigest()
     return int(id, 16) % 2**M
 
 
-def in_modulo_range(
+def in_mod_range(
     item: int, start: int, end: int, start_incl=False, end_incl=False
 ) -> bool:
     """Calculate whether item is in range (start, end) modulo M.
@@ -35,6 +35,7 @@ def in_modulo_range(
     Returns:
         True if item is in the range, False otherwise
     """
+
     if start == end:
         return True
 
@@ -43,6 +44,7 @@ def in_modulo_range(
         # skip the start value if we are not start inclusive
         if i == start and not start_incl:
             i = (i + 1) % (2**M)
+            continue
 
         if i == item:
             return True
@@ -70,10 +72,10 @@ def get_node_successor(node_ip: str) -> str:
 
 def get_node_successor_id(node_ip: str) -> int:
     successor = get_node_successor(node_ip)
-    return calculate_id_from_ip(successor)
+    return ip_to_id(successor)
 
 
-def find_id_successor(node_ip: str, id: int) -> str:
+def find_successor(node_ip: str, id: int) -> str:
     """Look up the successor of a specific ID (mod M)"""
     response = requests.get("http://" + node_ip + "/findsuccessor/" + str(id))
     data = response.json()
@@ -93,10 +95,12 @@ def get_node_closest_preceding_finger(node_ip: str, k: int) -> str:
 
 
 def set_node_predecessor(node_ip: str, predecessor: str) -> None:
+    print("set_node_predecessor(", node_ip, ",", predecessor, ")")
     requests.get("http://" + node_ip + "/setpredecessor/" + predecessor)
 
 
 def update_node_finger_table(node_ip: str, s_ip: str, i: int) -> None:
+    print("update_node_finger_table(", node_ip, ",", s_ip, ",", i, ")")
     response = requests.get(
         "http://" + node_ip + "/updatefingertable/" + s_ip + "/" + str(i)
     )
